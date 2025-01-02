@@ -9,6 +9,7 @@ See more details in the blogs written in Thai language:
 - [HR APP with Streamlit + Cloud Run + Gemini + Cloud SQL with authentication through Azure AD](https://medium.com/google-cloud-thailand/hr-app-%E0%B9%80%E0%B8%8A%E0%B9%87%E0%B8%84%E0%B8%A7%E0%B8%B1%E0%B8%99%E0%B8%A5%E0%B8%B2%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%97%E0%B8%B8%E0%B9%88%E0%B8%87%E0%B8%88%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99-%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2-streamlit-cloud-run-gemini-cloud-sql-%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%97%E0%B8%B3)
 - [HR APP part 2 with LangChain](https://medium.com/@disruptednetwork/hr-app-%E0%B9%80%E0%B8%8A%E0%B9%87%E0%B8%84%E0%B8%A7%E0%B8%B1%E0%B8%99%E0%B8%A5%E0%B8%B2%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%97%E0%B8%B8%E0%B9%88%E0%B8%87%E0%B8%88%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%A0%E0%B8%B2%E0%B8%84-2-langchain-3f800cfc2ab0)
 - [HR APP part 3 with LangGraph](https://medium.com/google-cloud-thailand/hr-app-เช็ควันลาแบบลูกทุ่งจานด่วนภาค-3-langgraph-6d82aae163a6)
+- [HR APP final with leave request](https://medium.com/@disruptednetwork/hr-app-%E0%B9%80%E0%B8%8A%E0%B9%87%E0%B8%84%E0%B8%A7%E0%B8%B1%E0%B8%99%E0%B8%A5%E0%B8%B2%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%97%E0%B8%B8%E0%B9%88%E0%B8%87%E0%B8%88%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%88%E0%B8%A7%E0%B8%99%E0%B8%A0%E0%B8%B2%E0%B8%84%E0%B8%88%E0%B8%9A-gemini-langgraph-cloudsql-cloud-run-streamlit-ac4a6eb914d3)
 
 ## Features
 
@@ -107,6 +108,8 @@ The service can be deployed on Google Cloud Run. Detailed deployment steps and c
 ## Tools Defined
 
 1. **fetch\_leave\_balance**: Fetches the user's leave balance from the database.
+2. **request\_leave: Submit a leave request for the user.
+3. **fetch\_pending\_requests: Fetches all pending leave requests for the user.
 
 ## Workflow Enhancements
 
