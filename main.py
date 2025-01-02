@@ -84,7 +84,8 @@ def fetch_leave_balance(user_id: str):
                 if leave_balance:
                     response = "Your leave balance:\n\n"
                     for leave_type, available, used in leave_balance:
-                        response += f"- {leave_type}: Available: {available}, Used: {used}\n"
+                        response += (f"- {leave_type}: Available: {available}, Used: {used}, "
+                                    f"Remaining: {available - used}\n")
                     return response
                 return f"No leave balance found for your account."
             return f"User ID not found. Please log in again."
@@ -94,20 +95,99 @@ def fetch_leave_balance(user_id: str):
             conn.close()
     return f"Failed to connect to the database."
 
+@tool
+def request_leave(user_id: str, leave_type_id: int, start_date: str, end_date: str, reason: str):
+    """Submits a leave request for the user."""
+    conn = db.connect_to_db()
+    if conn:
+        try:
+            if user_id:
+                # Fetch employee_id from user_id
+                employee_query = "SELECT employee_id FROM employees WHERE user_id = %s;"
+                result = db.execute_query(conn, employee_query, (user_id,))
+                if not result:
+                    return "Employee ID not found. Please contact HR."
+                employee_id = result[0][0]
+
+                # Calculate days requested
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+                days_requested = (end_date_obj - start_date_obj).days + 1
+
+                # Submit leave request
+                success = db.create_leave_request(conn, employee_id, leave_type_id, start_date, end_date, days_requested, reason)
+                if success:
+                    return "Leave request submitted successfully and is pending approval."
+                return "Failed to submit leave request."
+            return "User ID not found. Please log in again."
+        except Exception as e:
+            return f"Error submitting leave request: {e}"
+        finally:
+            conn.close()
+    return f"Failed to connect to the database."
+
+
+@tool
+def fetch_pending_requests(user_id: str):
+    """Fetches all pending leave requests for the user."""
+    conn = db.connect_to_db()
+    if conn:
+        try:
+            if user_id:
+                # Fetch employee_id from user_id
+                employee_query = "SELECT employee_id FROM employees WHERE user_id = %s;"
+                result = db.execute_query(conn, employee_query, (user_id,))
+                if not result:
+                    return "Employee ID not found. Please contact HR."
+                employee_id = result[0][0]
+
+                # Fetch pending leave requests
+                pending_query = """
+                    SELECT leave_type_id, start_date, end_date, days_requested, reason, request_date 
+                    FROM leave_requests
+                    WHERE employee_id = %s AND status = 'Pending';
+                """
+                pending_requests = db.execute_query(conn, pending_query, (employee_id,))
+                if pending_requests:
+                    response = "Your pending leave requests:\n\n"
+                    for leave_type_id, start_date, end_date, days_requested, reason, request_date in pending_requests:
+                        response += (f"- Leave Type ID: {leave_type_id}, Start Date: {start_date}, End Date: {end_date}, "
+                                    f"Days Requested: {days_requested}, Reason: {reason}, Requested On: {request_date}\n")
+                    return response
+                return "No pending leave requests found."
+            return "User ID not found. Please log in again."
+        except Exception as e:
+            return f"Error fetching pending requests: {e}"
+        finally:
+            conn.close()
+    return f"Failed to connect to the database."
+
 # Tools to use
-tools_to_use = [fetch_leave_balance]
+tools_to_use = [fetch_leave_balance, request_leave, fetch_pending_requests]
 
 # Prompts
 primary_assistant_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful assistant. Use the provided tools to assist with tasks such as fetching leave balance."
-              "\n\nCurrent user:\n\n{user_info}\n"
-              "\nCurrent time: {time}."),
+    ("system", "You are a helpful assistant. You can help user in English or Thai language. Use the provided tools to assist with tasks such as fetching leave balance(ขอดูวันลาคงเหลือ), request leave(ขอลาหยุด), and checking pending leave requests(ตรวจสอบวันลาที่ส่งไป)."
+               "\n\nAvailable tools:\n\n- Fetch Leave Balance\n- Request Leave-\n- Fetch Pending Requests"
+               "\n\nUse the tool `Fetch Leave Balance` to retrieve the user's leave balance. "
+               "You need the `user_id` to perform this operation.\n\n"
+               "Ensure you provide the result in a clear and user-friendly format."
+               "\n\nUse the tool `Request Leave` to perform request leave operation. You need the following details:\n"
+               "- `user_id`: The user's ID.\n"
+               "- `leave_type_id`: The ID of the leave type (1: Vacation, 2: Sick Leave, 3: Personal Time).\n"
+               "- `start_date` and `end_date`: In YYYY-MM-DD format. If the user enters date in Thai or incorrect format convert the leave dates to YYYY-MM-DD format before calling the Request Leave tool.\n"
+               "- `reason`: A brief reason for the leave. If the user does not provide the reason, just add the word None\n\n"
+               "Ensure all parameters are validated before invoking the tool."
+               "\n\nUse the tool `Check Pending Leave Requests` to retrieve the user's pending leave requests. "
+               "You need the `user_id` to perform this operation.\n\n"
+               "Provide the result in a clear and easy-to-read format."
+               "\n\nCurrent user:\n\n{user_info}\n"
+               "\nCurrent time: {time}."),
     ("placeholder", "{messages}"),
 ]).partial(time=datetime.now())
 
 # Runnables
 assistant_runnable = primary_assistant_prompt | chat_llm.bind_tools(tools_to_use)
-
 
 # Helper functions
 def handle_tool_error(error):

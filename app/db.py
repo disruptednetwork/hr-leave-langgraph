@@ -71,3 +71,46 @@ def fetch_user_leave_balance(conn, user_id):
         WHERE e.user_id = %s;
     """
     return execute_query(conn, query, (user_id,))
+
+def create_leave_request(conn, employee_id, leave_type_id, start_date, end_date, days_requested, reason):
+    """
+    Inserts a new leave request into the leave_requests table.
+
+    Args:
+        conn: The database connection.
+        employee_id: The employee's ID.
+        leave_type_id: The ID of the leave type.
+        start_date: The start date of the leave.
+        end_date: The end date of the leave.
+        days_requested: The number of days requested.
+        reason: The reason for the leave request.
+
+    Returns:
+        bool: True if the request was successfully created, False otherwise.
+    """
+    query = """
+        INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, days_requested, reason, status, request_date)
+        VALUES (%s, %s, %s, %s, %s, %s, 'Pending', NOW());
+    """
+    result = execute_query(conn, query, (employee_id, leave_type_id, start_date, end_date, days_requested, reason))
+    return result is None
+
+def fetch_leave_requests(conn, employee_id):
+    """
+    Retrieves leave requests for a specific employee.
+
+    Args:
+        conn: The database connection.
+        employee_id: The employee's ID.
+
+    Returns:
+        list: A list of tuples representing the leave requests, or None if there is an error.
+    """
+    query = """
+        SELECT lr.leave_request_id, lt.leave_type_name, lr.start_date, lr.end_date, lr.days_requested, lr.reason, lr.status, lr.request_date
+        FROM leave_requests lr
+        JOIN leave_types lt ON lr.leave_type_id = lt.leave_type_id
+        WHERE lr.employee_id = %s
+        ORDER BY lr.request_date DESC;
+    """
+    return execute_query(conn, query, (employee_id,))
