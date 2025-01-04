@@ -65,8 +65,8 @@ Set the following environment variables in your system:
 1. Clone the repository:
 
    ```bash
-   git clone <repository_url>
-   cd hr-leave-chatbot
+   git clone https://github.com/disruptednetwork/hr-leave-langgraph.git
+   cd hr-leave-langgraph
    ```
 
 2. Create a virtual environment and activate it:
