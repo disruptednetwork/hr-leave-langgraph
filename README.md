@@ -108,8 +108,8 @@ The service can be deployed on Google Cloud Run. Detailed deployment steps and c
 ## Tools Defined
 
 1. **fetch\_leave\_balance**: Fetches the user's leave balance from the database.
-2. **request\_leave: Submit a leave request for the user.
-3. **fetch\_pending\_requests: Fetches all pending leave requests for the user.
+2. **request\_leave**: Submit a leave request for the user.
+3. **fetch\_pending\_requests**: Fetches all pending leave requests for the user.
 
 ## Workflow Enhancements
 
